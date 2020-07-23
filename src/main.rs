@@ -304,7 +304,7 @@ fn main() {
                         .required(false)
                         .takes_value(true)
                         .default_value(&_au_sk_default)
-                        .help("authrotiy secret key file."),
+                        .help("authority secret key file."),
                 )
                 .arg(
                     Arg::with_name(ATTRIBUTES)
