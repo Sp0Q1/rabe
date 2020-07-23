@@ -1,5 +1,6 @@
 use std::path::Path;
 use std::fs::File;
+use std::fs::OpenOptions;
 use std::io::{Read, Write};
 
 pub fn read_file(_path: &Path) -> String {
@@ -39,12 +40,14 @@ pub fn read_to_vec(_path: &Path) -> Vec<u8> {
             return Vec::new();
         }
     }
-
 }
 
 pub fn write_from_vec(_path: &Path, _data: &Vec<u8>) {
     let display = _path.display();
-    let mut file = match File::open(_path) {
+    let mut file = match OpenOptions::new()
+            .write(true)
+            .truncate(true)
+            .open(_path) {
         Err(why) => panic!("sorry, couldn't open {}: {}", display, why.to_string()),
         Ok(file) => file,
     };
