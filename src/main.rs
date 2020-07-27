@@ -450,6 +450,13 @@ fn main() {
                         .required(false)
                         .takes_value(true)
                         .help("file to use."),
+                )
+                .arg(
+                    Arg::with_name(INPUT)
+                        .long(INPUT)
+                        .required(false)
+                        .takes_value(true)
+                        .help("inputvalue to use."),
                 ),
         )
         .subcommand(
@@ -1547,6 +1554,7 @@ fn main() {
         let mut _gp_file = String::from("");
         let mut _pk_file = String::from("");
         let mut _file: String = String::from("");
+        let mut _input: String = String::from("");
         let mut _pt_option: Option<Vec<u8>> = None;
         let mut _policy: String = String::new();
         match arguments.value_of(SK_FILE) {
@@ -1576,6 +1584,10 @@ fn main() {
         match arguments.value_of(FILE) {
             None => {}
             Some(x) => _file = x.to_string(),
+        }
+        match arguments.value_of(INPUT) {
+            None => {}
+            Some(x) => _input = x.to_string(),
         }
         match arguments.value_of(POLICY) {
             None => {}
@@ -1613,7 +1625,17 @@ fn main() {
             Scheme::BSW => {
                 let mut _sk: CpAbeSecretKey;
                 let mut _ct: CpAbeCiphertext;
-                if _as_json {
+                if _file.is_empty() {
+                    if _as_json {
+                        _sk = serde_json::from_str(&read_file(Path::new(&_sk_file))).unwrap();
+                    }
+                    else {
+                        _sk = from_slice(&decode(&read_raw(&read_file(Path::new(&_sk_file))))
+                        .unwrap()).unwrap();
+                    }
+                    _ct = from_slice(&decode(_input.as_bytes()).unwrap()).unwrap();
+                }
+                else if _as_json {
                     _sk = serde_json::from_str(&read_file(Path::new(&_sk_file))).unwrap();
                     _ct = serde_json::from_str(&read_file(Path::new(&_file))).unwrap();
                 } else {
@@ -1698,7 +1720,12 @@ fn main() {
                 return Err(RabeError::new("sorry, could not decrypt!"));
             }
             Some(_pt_u) => {
-                write_from_vec(Path::new(&_file), &_pt_u);
+                if (_file.is_empty()) {
+                    io::stdout().write_all(&_pt_u);
+                }
+                else {
+                    write_from_vec(Path::new(&_file), &_pt_u);
+                }
             }
         }
         Ok(())
