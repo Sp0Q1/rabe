@@ -60,3 +60,13 @@ To compile the C testfile:
 ```bash
 gcc test.c -lrabe -L./target/debug -o test
 ```
+
+To encrypt a testfile in debug:
+```bash
+cargo run -- --scheme BSW encrypt --file testfile.txt --policy "{ \"OR\": [ { \"ATT\": \"test1\"}, {\"ATT\": \"test2\"} ] }"
+```
+
+To decrypt a testfile in debug:
+```bash
+cargo run -- --scheme BSW decrypt --public\ key pk.rkey --file testfile.txt.rct --secret\ key sk.rkey
+```
