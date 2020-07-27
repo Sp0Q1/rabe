@@ -66,6 +66,10 @@ To encrypt a testfile in debug:
 cargo run -- --scheme BSW encrypt --file testfile.txt --policy "{ \"OR\": [ { \"ATT\": \"test1\"}, {\"ATT\": \"test2\"} ] }"
 ```
 
+```bash
+cargo run -- --scheme BSW encrypt --input test --policy "{ \"OR\": [ { \"ATT\": \"test1\"}, {\"ATT\": \"test2\"} ] }"
+```
+
 To decrypt a testfile in debug:
 ```bash
 cargo run -- --scheme BSW decrypt --public\ key pk.rkey --file testfile.txt.rct --secret\ key sk.rkey

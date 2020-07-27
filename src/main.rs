@@ -47,7 +47,11 @@ use std::{
     error::Error,
     fmt,
     path::Path,
-    process
+    process,
+};
+use std::io::{
+    self,
+    Write
 };
 mod schemes;
 mod utils;
@@ -66,6 +70,7 @@ const NAME: &'static str = "name";
 const SCHEME: &'static str = "scheme";
 const JSON: &'static str = "json";
 const FILE: &'static str = "file";
+const INPUT: &'static str = "input";
 
 // Default file names
 const GP_FILE: &'static str = "gp";
@@ -399,9 +404,16 @@ fn main() {
                 .arg(
                     Arg::with_name(FILE)
                         .long(FILE)
-                        .required(true)
+                        .required(false)
                         .takes_value(true)
                         .help("the file to encrypt."),
+                )
+                .arg(
+                    Arg::with_name(INPUT)
+                        .long(INPUT)
+                        .required(false)
+                        .takes_value(true)
+                        .help("the value to encrypt."),
                 ),
         )
         .subcommand(
@@ -435,7 +447,7 @@ fn main() {
                 .arg(
                     Arg::with_name(FILE)
                         .long(FILE)
-                        .required(true)
+                        .required(false)
                         .takes_value(true)
                         .help("file to use."),
                 ),
@@ -1234,6 +1246,7 @@ fn main() {
         let mut _gp_file = String::from("");
         let mut _ct_file: String = String::new();
         let mut _pt_file: String = String::new();
+        let mut _pt_input: String = String::new();
         let mut _policy: String = String::new();
         let mut _attributes: Vec<String> = Vec::new();
         match arguments.value_of(PK_FILE) {
@@ -1282,7 +1295,19 @@ fn main() {
                 _ct_file.push_str(&CT_EXTENSION);
             }
         }
-        let buffer: Vec<u8> = read_to_vec(Path::new(&_pt_file));
+        match arguments.value_of(INPUT) {
+            None => {}
+            Some(_input) => {
+                _pt_input = _input.to_string();
+            }
+        }
+        let buffer: Vec<u8>;
+        if _pt_file.is_empty() {
+            buffer = _pt_input.as_bytes().to_vec();
+        }
+        else {
+            buffer = read_to_vec(Path::new(&_pt_file));
+        }
         match _scheme {
             Scheme::AC17CP => {
                 let mut _pk: Ac17PublicKey;
@@ -1357,7 +1382,11 @@ fn main() {
                         ).unwrap()).unwrap();
                     }
                     let _ct = schemes::bsw::encrypt(&_pk, &_policy, &buffer);
-                    if _as_json {
+                    if _ct_file.is_empty() {
+                        let serialized_ct = to_vec_packed(&_ct).unwrap();
+                        io::stdout().write_all(&encode(&serialized_ct).as_bytes());
+                    }
+                    else if _as_json {
                         write_file(
                             Path::new(&_ct_file),
                             serde_json::to_string_pretty(&_ct).unwrap(),
