@@ -74,3 +74,8 @@ To decrypt a testfile in debug:
 ```bash
 cargo run -- --scheme BSW decrypt --public\ key pk.rkey --file testfile.txt.rct --secret\ key sk.rkey
 ```
+
+To encrypt and decrypt in one line:
+```bash
+cargo run -- --scheme BSW decrypt --public\ key pk.rkey --input $(cargo run -- --scheme BSW encrypt --input test --policy "{ \"OR\": [ { \"ATT\": \"test1\"}, {\"ATT\": \"test2\"} ] }") --secret\ key sk.rkey
+```

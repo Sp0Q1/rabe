@@ -246,7 +246,6 @@ pub fn decrypt(_sk: &CpAbeSecretKey, _ct: &CpAbeCiphertext) -> Option<Vec<u8>> {
                 if !_pruned.0 {
                     None
                 } else {
-                    println!("_pruned {:?}", _pruned.1);
                     let _z = calc_coefficients_str(&_ct._policy).unwrap();
                     let mut _a = Gt::one();
                     for _j in _pruned.1 {
